@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111a17">
+  <title>Šachový turnaj</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Šachový turnaj – úvod">
+      <span class="brand-mark">♞</span>
+      <span>ŠACH<span class="brand-light">OVÝ KLUB</span><small>SPRÁVA TURNAJE</small></span>
+    </a>
+    <nav class="top-actions" aria-label="Hlavní akce">
+      <button class="button button-primary" id="new-tournament-button" type="button">＋ &nbsp;Nový turnaj</button>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="welcome" id="empty-state">
+      <div class="welcome-icon">♟</div>
+      <p class="eyebrow">ŠVÝCARSKÝ SYSTÉM · BEZ ELO</p>
+      <h1>Váš turnaj,<br><em>vaše pravidla.</em></h1>
+      <p class="welcome-copy">Založte turnaj, přidejte hráče a nechte aplikaci sestavit férová kola. Výsledky i průběžné pořadí zůstávají uložené v tomto prohlížeči.</p>
+      <button class="button button-primary button-large" id="empty-create-button" type="button">＋ &nbsp;Vytvořit nový turnaj</button>
+      <div class="feature-row">
+        <span>◇ Švýcarské párování</span><span>◇ Přehledné pořadí</span><span>◇ Tisk na jednu stránku</span>
+      </div>
+    </section>
+
+    <div id="tournament-app" hidden>
+      <div id="tournament-dashboard">
+      <section class="tournament-heading">
+        <div>
+          <div class="eyebrow"><span class="live-dot"></span> AKTIVNÍ TURNAJ <span id="tournament-season"></span></div>
+          <h1 id="tournament-title"></h1>
+          <p class="tournament-meta" id="tournament-meta"></p>
+        </div>
+        <div class="heading-buttons">
+          <button class="button button-outline" id="open-players-button" type="button">Hráči <span class="heading-count" id="heading-player-count">0</span></button>
+          <button class="button button-outline" id="edit-tournament-button" type="button">Upravit turnaj</button>
+          <button class="button button-danger-quiet" id="close-tournament-button" type="button">Ukončit</button>
+        </div>
+      </section>
+
+      <section class="stats-grid" aria-label="Souhrn turnaje">
+        <article class="stat-card"><span>HRÁČI</span><strong id="stat-players">0</strong><small>aktivních účastníků</small></article>
+        <article class="stat-card"><span>ODEHRÁNO</span><strong id="stat-rounds">0 <i>/ 0</i></strong><small>kol turnaje</small></article>
+        <article class="stat-card"><span>PRŮBĚŽNÝ LÍDR</span><strong class="stat-leader" id="stat-leader">—</strong><small id="stat-leader-points">zatím bez výsledků</small></article>
+        <article class="stat-card"><span>FORMÁT</span><strong class="stat-format">Švýcarský</strong><small>bez ELO hodnocení</small></article>
+      </section>
+
+      <section class="workspace-grid">
+        <div class="main-column">
+          <section class="panel rounds-panel">
+            <div class="panel-heading">
+              <div><p class="eyebrow">HRACÍ PLÁN</p><h2>Kola turnaje</h2></div>
+              <div class="round-actions">
+                <button class="button button-outline" id="selected-round-print" type="button" disabled>PDF vybraného kola</button>
+                <button class="button button-primary" id="next-round-button" type="button">＋ &nbsp;Vytvořit 1. kolo</button>
+              </div>
+            </div>
+            <div class="round-tabs" id="round-tabs" aria-label="Kola"></div>
+            <div id="round-content"></div>
+          </section>
+
+          <section class="panel standings-panel">
+            <div class="panel-heading">
+              <div><p class="eyebrow">PRŮBĚŽNÉ VÝSLEDKY</p><h2 id="standings-title">Pořadí hráčů</h2></div>
+            <div class="standing-actions">
+              <span class="small-note">pořadí podle bodů a vzájemného zápasu</span>
+              <button class="button button-outline" id="selected-standings-pdf" type="button" disabled>Pořadí do PDF</button>
+            </div>
+            </div>
+            <div class="table-wrap">
+              <table class="standings-table">
+                <thead><tr><th>POŘADÍ</th><th>JMÉNO</th><th class="numeric">BODY</th></tr></thead>
+                <tbody id="standings-body"></tbody>
+              </table>
+            </div>
+            <p class="standings-footnote">Při shodě bodů rozhoduje vzájemný zápas. Ruční úprava výsledku automaticky přepočítá tabulku.</p>
+          </section>
+        </div>
+
+      </section>
+      </div>
+
+      <section id="players-screen" class="players-screen" hidden>
+        <div class="players-screen-heading">
+          <div>
+            <p class="eyebrow">SPRÁVA ÚČASTNÍKŮ · <span id="players-tournament-name"></span></p>
+            <h1>Hráči <span class="heading-count" id="player-count">0</span></h1>
+            <p class="panel-description">Zadejte jméno do posledního řádku. Enter uloží hráče a přesune kurzor na další řádek.</p>
+          </div>
+          <button class="button button-outline" id="back-to-tournament-button" type="button">← &nbsp;Zpět k turnaji</button>
+        </div>
+        <section class="panel players-panel">
+          <div class="players-screen-actions">
+            <span class="small-note">Úpravy se ukládají automaticky.</span>
+            <button class="button button-primary" id="add-player-button" type="button">＋ &nbsp;Přidat řádek</button>
+          </div>
+          <div class="table-wrap">
+            <table class="players-table">
+              <thead><tr><th>#</th><th>JMÉNO HRÁČE</th><th>AKCE</th></tr></thead>
+              <tbody id="player-list"></tbody>
+            </table>
+          </div>
+          <div class="bye-note"><span>☝</span><p><strong>Volné kolo</strong><br>Pomocí nabídky u hráče mu přidělíte plnohodnotné volné kolo v příštím losování.</p></div>
+        </section>
+        <section class="panel players-standings-panel">
+          <div class="panel-heading">
+            <div><p class="eyebrow">AKTUÁLNÍ STAV</p><h2>Průběžné pořadí</h2></div>
+            <span class="small-note">po všech zadaných kolech</span>
+          </div>
+          <div class="table-wrap">
+            <table class="standings-table">
+              <thead><tr><th>POŘADÍ</th><th>JMÉNO</th><th class="numeric">BODY</th></tr></thead>
+              <tbody id="players-standings-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer"><span>ŠACHOVÝ TURNAJ</span><span>Lokální aplikace · data zůstávají ve vašem prohlížeči</span></footer>
+
+  <dialog id="tournament-dialog" class="modal">
+    <form id="tournament-form">
+      <div class="modal-heading"><div><p class="eyebrow">NASTAVENÍ</p><h2 id="tournament-dialog-title">Nový turnaj</h2></div><button class="icon-button" type="button" data-close="tournament-dialog" aria-label="Zavřít">×</button></div>
+      <label class="field full-field">Název turnaje<input name="name" required maxlength="80" placeholder="např. Podzimní klubový turnaj"></label>
+      <div class="form-grid">
+        <label class="field">Pořadatel / ročník<input name="organizer" maxlength="60" placeholder="např. Šachový klub / 2026"></label>
+        <label class="field">Místo konání<input name="location" maxlength="60" placeholder="např. Klubovna"></label>
+        <label class="field">Datum<input name="date" type="date" required></label>
+        <label class="field">Počet kol<input name="rounds" type="number" min="1" max="30" value="5" required></label>
+      </div>
+      <div class="modal-actions"><button class="button button-quiet" type="button" data-close="tournament-dialog">Zrušit</button><button class="button button-primary" type="submit">Uložit turnaj</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="pdf-dialog" class="modal pdf-modal">
+    <div class="modal-heading">
+      <div><p class="eyebrow">NÁHLED EXPORTU</p><h2 id="pdf-dialog-title">PDF turnaje</h2></div>
+      <button class="icon-button" type="button" data-close="pdf-dialog" aria-label="Zavřít">×</button>
+    </div>
+    <p class="pdf-preview-note">Černobílý náhled na jednu stránku A4 na výšku.</p>
+    <div class="pdf-preview-frame"><img id="pdf-preview-image" alt="Náhled exportované stránky PDF"></div>
+    <div class="modal-actions">
+      <button class="button button-quiet" type="button" data-close="pdf-dialog">Zavřít</button>
+      <button class="button button-outline" id="print-pdf-preview-button" type="button">Tisknout</button>
+      <button class="button button-primary" id="download-pdf-button" type="button">Stáhnout PDF</button>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
