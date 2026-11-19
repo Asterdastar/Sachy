@@ -308,7 +308,11 @@ function drawPdfTable(context, options) {
     context.textAlign = options.headerAlignments?.[index] ?? "left";
     context.textBaseline = "middle";
     const padding = context.textAlign === "center" ? 4 : 9;
-    const headerTextX = context.textAlign === "center" ? columnX + columnWidths[index] / 2 : columnX + padding;
+    const headerTextX = context.textAlign === "center"
+      ? columnX + columnWidths[index] / 2
+      : context.textAlign === "right"
+        ? columnX + columnWidths[index] - padding
+        : columnX + padding;
     context.fillText(header, headerTextX, y + headerHeight / 2, columnWidths[index] - padding * 2);
     columnX += columnWidths[index];
   });
@@ -329,7 +333,11 @@ function drawPdfTable(context, options) {
     row.forEach((value, columnIndex) => {
       context.textAlign = options.alignments?.[columnIndex] ?? (columnIndex === 0 ? "center" : "left");
       const padding = context.textAlign === "center" ? 4 : 9;
-      const textXPosition = context.textAlign === "center" ? textX + columnWidths[columnIndex] / 2 : textX + padding;
+      const textXPosition = context.textAlign === "center"
+        ? textX + columnWidths[columnIndex] / 2
+        : context.textAlign === "right"
+          ? textX + columnWidths[columnIndex] - padding
+          : textX + padding;
       context.fillText(String(value), textXPosition, rowY + rowHeight / 2, columnWidths[columnIndex] - padding * 2);
       textX += columnWidths[columnIndex];
     });
@@ -401,8 +409,8 @@ function makePdfPreview() {
     drawPdfTable(context, {
       x: (canvas.width - tableWidth) / 2, y: 190, width: tableWidth,
       headers: ["Poř.", "St.č.", "Jméno", "Body", "BH:GP"], rows,
-      weights: [0.7, 0.7, 2.2, 0.8, 0.8], headerAlignments: ["right", "right", "left", "right", "right"],
-      alignments: ["right", "right", "left", "right", "right"],
+      weights: [0.7, 0.7, 2.2, 0.8, 0.8], headerAlignments: ["left", "left", "left", "left", "left"],
+      alignments: ["left", "left", "left", "left", "left"],
     });
   }
   return canvas.toDataURL("image/jpeg", 0.94);
@@ -568,7 +576,7 @@ function renderRound() {
       <td class="board-number">${index + 1}</td>
       <td class="seed">${white?.seed ?? "—"}</td>
       <td class="player-name">${escapeHtml(white?.name ?? "Odebraný hráč")}</td>
-      <td><select class="result-select" aria-label="Výsledek šachovnice ${index + 1}" data-match="${index}" ${complete ? "disabled" : ""}>
+      <td><select class="result-select" aria-label="Upravit výsledek šachovnice ${index + 1}" data-match="${index}">
         <option value="" ${!match.result ? "selected" : ""}>Výsledek</option>
         <option value="1-0" ${match.result === "1-0" ? "selected" : ""}>1 : 0</option>
         <option value="½-½" ${match.result === "½-½" ? "selected" : ""}>½ : ½</option>
