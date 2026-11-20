@@ -89,7 +89,7 @@ button{cursor:pointer}
 .players-table th{color:#839188;font:9px var(--mono);letter-spacing:.8px;padding:8px 5px;border-bottom:1px solid var(--line)}
 .players-table td{padding:5px;border-bottom:1px solid #27342d}
 .players-seed{width:28px;color:#879389;text-align:center;font:10px var(--mono)}
-.players-actions{width:52px;white-space:nowrap;text-align:right}
+.players-actions{width:88px;white-space:nowrap;text-align:right}
 .player-name-input{width:100%;min-width:0;border:1px solid transparent;border-radius:4px;padding:7px;background:transparent;color:var(--text);font-size:11px;outline:0}
 .player-name-input:focus{border-color:#526746;background:#202b22}
 .player-name-input::placeholder{color:#79867c}

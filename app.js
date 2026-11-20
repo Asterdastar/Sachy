@@ -39,7 +39,7 @@ function showToast(message) {
 }
 
 function activePlayers() {
-  return tournament.players.filter((player) => !player.withdrawn);
+  return tournament.players.filter((player) => !player.withdrawn && !player.deleted);
 }
 
 function findPlayer(id) {
@@ -516,8 +516,9 @@ function render() {
   $("#stat-rounds").innerHTML = `${tournament.rounds.length} <i>/ ${tournament.maxRounds}</i>`;
   $("#stat-leader").textContent = top?.player.name ?? "—";
   $("#stat-leader-points").textContent = top ? `${top.points} bodů` : "zatím bez výsledků";
-  $("#player-count").textContent = tournament.players.length;
-  $("#heading-player-count").textContent = tournament.players.length;
+  const listedPlayers = tournament.players.filter((player) => !player.deleted);
+  $("#player-count").textContent = listedPlayers.length;
+  $("#heading-player-count").textContent = listedPlayers.length;
   $("#players-tournament-name").textContent = tournament.name;
   const rounds = tournament.rounds;
   if (selectedRound >= rounds.length) selectedRound = Math.max(0, rounds.length - 1);
@@ -604,7 +605,7 @@ function renderRound() {
 
 function renderPlayers() {
   const container = $("#player-list");
-  const rows = tournament.players.map((player) => {
+  const rows = tournament.players.filter((player) => !player.deleted).map((player) => {
     const byeLabel = tournament.nextByeId === player.id ? "Zrušit volno" : "Přidělit volno";
     return `<tr class="${player.withdrawn ? "is-withdrawn" : ""}">
       <td class="players-seed">${player.seed}</td>
@@ -612,6 +613,7 @@ function renderPlayers() {
       <td class="players-actions">
         ${!player.withdrawn ? `<button class="mini-button" type="button" data-bye="${player.id}" aria-label="${byeLabel}" title="${byeLabel}">☝</button>` : ""}
         <button class="mini-button" type="button" data-withdraw="${player.id}" aria-label="${player.withdrawn ? "Vrátit hráče" : "Odhlásit hráče"}" title="${player.withdrawn ? "Vrátit" : "Odhlásit"}">${player.withdrawn ? "↶" : "×"}</button>
+        <button class="mini-button" type="button" data-delete="${player.id}" aria-label="Smazat hráče ${escapeHtml(player.name)}" title="Smazat hráče">⌫</button>
       </td>
     </tr>`;
   }).join("");
@@ -651,6 +653,7 @@ function renderPlayers() {
   });
   container.querySelectorAll("[data-withdraw]").forEach((button) => button.addEventListener("click", () => toggleWithdrawal(button.dataset.withdraw)));
   container.querySelectorAll("[data-bye]").forEach((button) => button.addEventListener("click", () => toggleBye(button.dataset.bye)));
+  container.querySelectorAll("[data-delete]").forEach((button) => button.addEventListener("click", () => deletePlayer(button.dataset.delete)));
 }
 
 function addPlayer(name) {
@@ -683,9 +686,25 @@ function renderStandings(standings, tbody = $("#standings-body")) {
   }
   tbody.innerHTML = standings.map((item, index) => `<tr>
     <td class="standing-rank ${index < 3 ? "top-rank" : ""}">${String(index + 1).padStart(2, "0")}</td>
-    <td class="player-name ${item.player.withdrawn ? "withdrawn" : ""}">${escapeHtml(item.player.name)}${item.player.withdrawn ? " <span class='color-tag'>ODHLÁŠEN</span>" : ""}</td>
+    <td class="player-name ${item.player.withdrawn ? "withdrawn" : ""}">${escapeHtml(item.player.name)}${item.player.deleted ? " <span class='color-tag'>SMAZÁN · HISTORIE</span>" : item.player.withdrawn ? " <span class='color-tag'>ODHLÁŠEN</span>" : ""}</td>
     <td class="numeric points">${item.points}</td>
   </tr>`).join("");
+}
+
+function deletePlayer(playerId) {
+  const player = findPlayer(playerId);
+  if (!player) return;
+  if (!confirm(`Opravdu smazat hráče ${player.name} ze seznamu? Jeho odehrané partie a pořadí zůstanou v historii.`)) return;
+  const hasHistory = tournament.rounds.some((round) =>
+    getMatches(round).some((match) => match.whiteId === playerId || match.blackId === playerId));
+  if (tournament.nextByeId === playerId) tournament.nextByeId = null;
+  if (hasHistory) {
+    player.deleted = true;
+  } else {
+    tournament.players = tournament.players.filter((item) => item.id !== playerId);
+  }
+  saveTournament();
+  render();
 }
 
 function toggleWithdrawal(playerId) {
